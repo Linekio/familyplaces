@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="utf-8" />
+	<title>Genlands</title>
+	<link rel="stylesheet" href="jQRangeSlider-5.7.2/css/classic.css" />
+	<link rel="stylesheet/less" type="text/css" href="genlands.less" />
+	<script src="less.min.js" type="text/javascript"></script>
+</head>
+
+<body>
+	<header>
+	<div>
+			<img src="http://cfmedia.deadline.com/2016/07/logo-tv-logo.png" alt="logo" />
+		<h1>Genlands</h1>
+		</div>
+	</header>
+	<div id="content">
+		
+		<div id="panneau">
+		<span id="croix" class="boutonblanc">×</span>
+			<form>
+				<fieldset class="fieldblock">
+					<p>Événement :</p>
+					<input type="radio" name="evenement" value="BIRT" id="birth" checked /> <label for="birth">Naissances / Baptêmes</label><br />
+					<input type="radio" name="evenement" value="DEAT" id="death" /> <label for="death">Décès / Enterrements</label>
+				</fieldset>
+				<fieldset class="fieldblock">
+					<p>Mode :</p>
+					<select name="mode">
+						<option value="tout" selected>Toutes les personnes</option> 
+						<option value="parents">Personnes avec lien de parenté</option>
+						<option value="ancetres">Ancêtres directs</option>
+					</select> <br />
+				</fieldset>
+				<div>
+					<input id="file" type="file" accept=".ged" />
+					<label class="boutonblanc forfile" for="file">Envoyez votre Gedcom</label>
+				</div>
+			</form>
+			<div id="retour" class="fieldblock">
+			</div>
+		</div>
+		<div id="map"></div>
+		<div id="loading">
+			<section id="msg"></section>
+		</div>
+		<div id="slider"></div>
+	</div>
+	<footer>
+		<p>Genlands - Développé par Benoît Fontaine</p>
+	</footer>
+	<script src="ajax.js"></script>
+	<script src="markerclusterermod.js"></script>
+	<script src="jquery-3.1.1.min.js"></script>
+	<script src="jquery-ui.min.js"></script>
+	<script src="jQRangeSlider-5.7.2/jQeditRangeSlider-min.js"></script>
+	<script src="genlands.js"></script>
+	<script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAhPbmiKZDajPKMrKD1sjeXkzKPUaeL5Vg&callback=initMap">
+	</script>
+</body>
+
+</html>

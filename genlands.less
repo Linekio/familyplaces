@@ -1,0 +1,247 @@
+@text: #4a2748;
+@grisf: #333;
+@grisc: #DDD;
+
+body {
+	margin: 0;
+	color: @text;
+}
+
+header {
+	text-align: center;
+	height: 10vh;
+	background-color: #cbe6a3;
+
+	div {
+		display: inline-flex;
+		margin: 5px 0 0 0;
+
+		img {
+			width: 50px;
+			height: 50px;
+			margin: auto 5px;
+		}
+
+		h1 {
+			margin: auto 5px;
+		}
+
+	}
+
+}
+
+#content {
+	max-height: 80vh;
+}
+
+#map {
+	min-height: 80vh;
+}
+
+#panneau {
+	position: absolute;
+	right: 0;
+	top: 11vh;
+	background-color: @grisf;
+	padding-bottom: 15px;
+	z-index: 2;
+	opacity: .95;
+	border-radius: 10px 0 0 10px;
+}
+
+#croix {
+	font-size: 1.2em;
+	margin-left: 20px;
+	width: 15px;
+	height: 15px;
+	padding: 1px;
+	line-height: 15px;
+}
+
+.fieldblock {
+	margin: 10px 10px 0 20px;
+	padding: 10px;
+	background-color: @grisc;
+	border-radius: 10px;
+	border: 1px solid #fff;
+	box-shadow: inset 1px 1px 1px #333;
+}
+
+form div {
+	text-align: center;
+	padding-left: 10px;
+}
+
+#retour {
+	display: none;
+}
+
+.boutonblanc {
+	margin: 10px auto 0 auto;
+	text-align: center;
+	overflow: hidden;
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0.05, #ffffff), color-stop(1, #f6f6f6));
+	background: -moz-linear-gradient(top, #ffffff 5%, #f6f6f6 100%);
+	background: -webkit-linear-gradient(top, #ffffff 5%, #f6f6f6 100%);
+	background: -o-linear-gradient(top, #ffffff 5%, #f6f6f6 100%);
+	background: -ms-linear-gradient(top, #ffffff 5%, #f6f6f6 100%);
+	background: linear-gradient(to bottom, #ffffff 5%, #f6f6f6 100%);
+	filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffffff', endColorstr='#f6f6f6', GradientType=0);
+	background-color: #ffffff;
+	-moz-border-radius: 6px;
+	-webkit-border-radius: 6px;
+	border-radius: 6px;
+	border: 1px solid #dcdcdc;
+	display: inline-block;
+	cursor: pointer;
+	color: #666666;
+	font-family: Arial;
+	font-weight: bold;
+	text-decoration: none;
+	text-shadow: 0px 1px 0px #ffffff;
+
+	&:hover {
+		background: -webkit-gradient(linear, left top, left bottom, color-stop(0.05, #f6f6f6), color-stop(1, #ffffff));
+		background: -moz-linear-gradient(top, #f6f6f6 5%, #ffffff 100%);
+		background: -webkit-linear-gradient(top, #f6f6f6 5%, #ffffff 100%);
+		background: -o-linear-gradient(top, #f6f6f6 5%, #ffffff 100%);
+		background: -ms-linear-gradient(top, #f6f6f6 5%, #ffffff 100%);
+		background: linear-gradient(to bottom, #f6f6f6 5%, #ffffff 100%);
+		filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#f6f6f6', endColorstr='#ffffff', GradientType=0);
+		background-color: #f6f6f6;
+	}
+
+	&:active {
+		position: relative;
+		top: 1px;
+	}
+
+}
+
+#file {
+	display: none;
+}
+
+.forfile {
+	width: 180px;
+	font-size: .9em;
+	padding: 4px 12px;
+}
+
+#toglog {
+	font-size: .8em;
+}
+
+#slider {
+	position: relative;
+	top: -50px;
+	margin: 0 25% 0 10%;
+}
+
+#loading {
+	position: fixed;
+	top: 0;
+	height: 100%;
+	left: 0;
+	width: 100%;
+	background-color: rgba(0, 0, 0, .5);
+	z-index: 10;
+	display: none;
+}
+
+#msg {
+	position: absolute;
+	top: 25vh;
+	height: 30vh;
+	left: 35vw;
+	width: 30vw;
+	background-color: #fff;
+	border-radius: 15px;
+	text-align: center;
+	display: flex;
+	box-shadow: 10px 10px 15px rgba(0, 0, 0, .7);
+
+	p {
+		margin: auto;
+	}
+
+}
+
+footer {
+	background-color: @grisf;
+	margin: 0;
+	height: 10vh;
+	color: @grisc;
+	text-align: center;
+	display: flex;
+
+	p {
+		margin: auto;
+	}
+
+}
+
+.lieu {
+	margin: auto;
+	padding-bottom: 3px;
+	text-align: center;
+}
+
+.personne {
+	padding: 5px 10px;
+
+	h3 {
+		margin: 0 0 2px 0;
+	}
+
+	&:last-child {
+		border-bottom-left-radius: 5px;
+		border-bottom-right-radius: 5px;
+	}
+
+	span:last-child {
+		float: right;
+	}
+
+}
+
+.lieu + .personne {
+	border-top-left-radius: 5px;
+	border-top-right-radius: 5px;
+}
+
+.sexgrad(@color1, @color2) {
+
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0.05, #f6f6f6), color-stop(1, #ffffff));
+	background: -moz-linear-gradient(@color1, @color2);
+	background: -webkit-linear-gradient(@color1, @color2);
+	background: -o-linear-gradient(@color1, @color2);
+	background: -ms-linear-gradient(@color1, @color2);
+	background: linear-gradient(@color1, @color2);
+}
+
+.M {
+	.sexgrad(#b2cdff, #4483f7);
+}
+
+.F {
+	.sexgrad(#ffb2f2, #e2427c);
+}
+
+.U {
+	.sexgrad(#edf0f2, #bbbdbf);
+}
+
+#log {
+	max-width: 100%;
+}
+
+xmp {
+	background-color: #fff;
+	box-shadow: inset 1px 1px 1px #999;
+	padding: 1px 2px 7px 3px;
+	max-height: 200px;
+	min-width: 200px;
+	max-width: 15.5vw;
+	overflow: scroll;
+}
