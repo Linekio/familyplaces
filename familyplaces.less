@@ -25,9 +25,7 @@ header {
 		h1 {
 			margin: auto 5px;
 		}
-
 	}
-
 }
 
 #content {
@@ -38,18 +36,41 @@ header {
 	min-height: 80vh;
 }
 
-#panneau {
-	position: absolute;
+
+.pan {
+	background-color: @grisf;
+	border-radius: 10px 0 0 10px;
+	z-index: 2;
+
+}
+
+#panneau_cont {
+	position: fixed;
 	right: 0;
 	top: 11vh;
-	background-color: @grisf;
-	padding-bottom: 15px;
 	z-index: 2;
+}
+
+#panneau {
+	position: absolute;
+	right: 0px;
+	padding-bottom: 15px;
 	opacity: .95;
-	border-radius: 10px 0 0 10px;
+	min-width: 260px;
+	transition: right 2s;
+}
+
+#retpan {
+	position: absolute;
+	right: 260px;
+	color: @grisc;
+	max-height: 50px;
+	display: none;
 }
 
 #croix {
+	position: relative;
+	right: 12px;
 	font-size: 1.2em;
 	margin-left: 20px;
 	width: 15px;
@@ -134,8 +155,8 @@ form div {
 
 #slider {
 	position: relative;
-	top: -50px;
-	margin: 0 25% 0 10%;
+	bottom: 50px;
+	margin: 0 15% 0 15%;
 }
 
 #loading {

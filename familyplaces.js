@@ -187,6 +187,23 @@ function lieu(obj, type) {
 	return null;
 }
 
+// panneau
+
+function fermePanneau() {
+	document.getElementById('panneau').style.right = '-260px';
+	setTimeout(function() {document.getElementById('retpan').style.display = 'block'}, 2000);
+	console.log('ferme');
+}
+
+function ouvrePanneau(e) {
+	document.getElementById('panneau').style.right = '0';
+	document.getElementById('retpan').style.display = 'none';
+	console.log('ouvre');
+}
+
+	document.getElementById('croix').addEventListener('click', fermePanneau	);
+	document.getElementById('retpan').addEventListener('click', ouvrePanneau);
+
 // gestion du log
 function createLog() {
 	document.getElementById('retour').style.display = 'block';
@@ -284,7 +301,7 @@ function createMarkers(min, max) {
 			})
 			markers.push(marker);
 			bounds.extend(e.location);
-			window.location = '#map';
+			fermePanneau();
 		}
 	});
 
