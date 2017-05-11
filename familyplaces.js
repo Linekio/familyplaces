@@ -187,8 +187,7 @@ function lieu(obj, type) {
 	return null;
 }
 
-// panneau
-
+// panneau coulissant
 function fermePanneau() {
 	document.getElementById('panneau').style.right = '-260px';
 	setTimeout(function() {document.getElementById('retpan').style.display = 'block'}, 2000);
@@ -201,8 +200,8 @@ function ouvrePanneau(e) {
 	console.log('ouvre');
 }
 
-	document.getElementById('croix').addEventListener('click', fermePanneau	);
-	document.getElementById('retpan').addEventListener('click', ouvrePanneau);
+document.getElementById('croix').addEventListener('click', fermePanneau	);
+document.getElementById('retpan').addEventListener('click', ouvrePanneau);
 
 // gestion du log
 function createLog() {
@@ -215,25 +214,25 @@ function createLog() {
 	logElt.innerHTML = '';
 	pelt = document.createElement('p');
 	xmpElt = document.createElement('xmp');
+	aElt = document.createElement('a');
+	aElt.textContent = 'Fermer';
 	logElt.appendChild(pelt);
-	logElt.appendChild(xmpElt);
 	afficheLog();
-	$('xmp').toggle();
 }
 
 function afficheLog() {
 
 	pelt.innerHTML = log.errors + ' erreurs. <a href="" id="toglog">Consulter le log</a>';
 	xmpElt.innerHTML = log.text;
-
 	document.getElementById('toglog').addEventListener('click', function(e) {
 		e.preventDefault();
-		if ($('xmp').is(':hidden')) {
-			this.textContent = 'Fermer le log';
-		} else {
-			this.textContent = 'Consulter le log';
-		}
-		$('xmp').toggle();
+		msg.innerHTML = '';
+		msg.appendChild(xmpElt);
+		msg.appendChild(aElt);
+		document.querySelector('xmp + a').addEventListener('click', function() {
+			popup(false);
+		});
+		popup(true);
 	})
 }
 
@@ -301,7 +300,6 @@ function createMarkers(min, max) {
 			})
 			markers.push(marker);
 			bounds.extend(e.location);
-			fermePanneau();
 		}
 	});
 
@@ -522,6 +520,7 @@ function traitement(arbre) {
 			return acc + e.bulle.length;
 		}, 0);
 		ajouteLog(sum + ' personnes localisées\n' + log.req + '  requêtes geocode effectuées\n' + comp.length + ' marqueurs créés', false);
+		fermePanneau();		
 		createMarkers(dateMin(persons), dateMax(persons));
 		popup(false);
 	})

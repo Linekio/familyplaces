@@ -172,14 +172,13 @@ form div {
 
 #msg {
 	position: absolute;
-	top: 25vh;
-	height: 30vh;
-	left: 35vw;
-	width: 30vw;
+	top: 20vh;
+	height: 45vh;
+	left: 30vw;
+	width: 40vw;
 	background-color: #fff;
 	border-radius: 15px;
-	text-align: center;
-	display: flex;
+	text-align: center;	
 	box-shadow: 10px 10px 15px rgba(0, 0, 0, .7);
 
 	p {
@@ -258,11 +257,17 @@ footer {
 }
 
 xmp {
-	background-color: #fff;
+	display: block;
+	text-align: left;
+	max-height: 35vh;
+	height: 80%;
+	margin: 10px;
 	box-shadow: inset 1px 1px 1px #999;
 	padding: 1px 2px 7px 3px;
-	max-height: 200px;
-	min-width: 200px;
-	max-width: 15.5vw;
 	overflow: scroll;
+
+	& + div {
+		display: inline-block;
+		text-decoration: underline;
+	}
 }
