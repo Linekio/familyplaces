@@ -190,14 +190,12 @@ function lieu(obj, type) {
 // panneau coulissant
 function fermePanneau() {
 	document.getElementById('panneau').style.right = '-260px';
-	setTimeout(function() {document.getElementById('retpan').style.display = 'block'}, 2000);
-	console.log('ferme');
+	setTimeout(function() {document.getElementById('retpan').style.display = 'block'}, 1000);
 }
 
 function ouvrePanneau(e) {
 	document.getElementById('panneau').style.right = '0';
 	document.getElementById('retpan').style.display = 'none';
-	console.log('ouvre');
 }
 
 document.getElementById('croix').addEventListener('click', fermePanneau	);
@@ -216,6 +214,7 @@ function createLog() {
 	xmpElt = document.createElement('xmp');
 	aElt = document.createElement('a');
 	aElt.textContent = 'Fermer';
+	aElt.href = '';
 	logElt.appendChild(pelt);
 	afficheLog();
 }
@@ -229,7 +228,8 @@ function afficheLog() {
 		msg.innerHTML = '';
 		msg.appendChild(xmpElt);
 		msg.appendChild(aElt);
-		document.querySelector('xmp + a').addEventListener('click', function() {
+		document.querySelector('xmp + a').addEventListener('click', function(f) {
+			f.preventDefault();
 			popup(false);
 		});
 		popup(true);
@@ -284,6 +284,7 @@ function createMarkers(min, max) {
 			var marker = new google.maps.Marker({
 				position: e.location,
 				title: tit,
+				map: map,
 				label: arr.length.toString(),
 				numb: arr.length
 			});
@@ -354,8 +355,7 @@ function localise(lieu, retard) {
 		if (places[lieu]) {
 			resolve(places[lieu]);
 		} else {
-			//	AIzaSyAhPbmiKZDajPKMrKD1sjeXkzKPUaeL5Vg
-			setTimeout(ajaxGet, retard * 1000, "https://maps.googleapis.com/maps/api/geocode/json?address=" + lieu + "&key=AIzaSyDln_6mnTzxKi9sCKYc-KVF9ZWeZj_PVjI", function(reponse) {
+			setTimeout(ajaxGet, retard * 1000, "https://maps.googleapis.com/maps/api/geocode/json?address=" + lieu + "&key=AIzaSyAx7_ttohnH2MZnOFilss0gC3tE9KP7pTc", function(reponse) {
 				popMsg('<p>Localisation en cours<br />' + lieu + '</p>');
 				var geocode = JSON.parse(reponse);
 				log.req++;
@@ -364,7 +364,6 @@ function localise(lieu, retard) {
 					places[lieu] = loc;
 					resolve(loc);
 				} else {
-					//console.log(geocode.status);
 					if (geocode.status === 'OVER_QUERY_LIMIT') {
 						if (geocode.error_message.includes('daily')) {
 							ajouteLog('Quota dépassé', true);
@@ -451,14 +450,56 @@ function ancetres(arbre, id, type, line) {
 	return ret;
 }
 
+
+function parentee(arbre, id, type) {
+	function ancetresArray(arbre, id) {
+		var rt = [id];
+		var indiv = arbre['@' + id + '@.0.'];
+		if (indiv) {
+			var famc = indiv['FAMC.0'];
+			if (famc) {
+				var f = arbre[famc + '.0.'];
+				var husb = f['HUSB.0'];
+				var wife = f['WIFE.0'];
+				if (husb) {
+					rt = rt.concat(ancetresArray(arbre, ident(husb)));
+				}
+				if (wife) {
+					rt = rt.concat(ancetresArray(arbre, ident(wife)));
+				}
+			}
+		}
+		return rt;
+	}
+	var ret = [];
+	var tableau = Object.keys(arbre);
+	tableau.forEach(function(e) {
+		if (arbre[e] == 'INDI') {
+			var a = ancetresArray(arbre, ident(e));
+			var b = ancetresArray(arbre, id);	
+			var inter = a.reduce(function (acc, val) {
+				return acc || b.includes(val);
+			}, false);
+			if (inter) {
+				var p = decrire(arbre, ident(e), type, null);
+				if (p.place && p.date) {
+					ret.push(p);
+				}
+			}
+		}
+	})
+	return ret;
+}
+
+
 //traiter l'arbre en fonction du mode
 function traitement(arbre) {
 	comp = [];
 	lignes = [];
 	var evenement = document.querySelector('input[type=radio]:checked').value;
-	var persons = tout(arbre, evenement);
-	//var persons = ancetres(arbre, 'I8', 'BIRT', null);
-
+	//var persons = tout(arbre, evenement);
+	//var persons = ancetres(arbre, 'I1', 'BIRT', null);
+	var persons = parentee(arbre, 'I1', 'BIRT');
 
 	$("#slider").editRangeSlider("option", "bounds", {
 		min: dateMin(persons),
@@ -552,7 +593,7 @@ function initMap() {
 	});
 
 	var options = {
-		gridSize: 50,
+		gridSize: 45,
 		zoomOnClick: true,
 		averageCenter: true,
 		styles: null,
@@ -565,7 +606,7 @@ function initMap() {
 	fileInput.addEventListener('change', function() {
 		popup(true);
 		popMsg(msg.innerHTML = '<p>Ouverture du fichier en cours...</p>');
-		var s = this.value;
+		var s = this.files[0].name;
 		if (s.trim() == '') {
 			s = 'Envoyez votre Gedcom';
 		}
@@ -579,7 +620,7 @@ function initMap() {
 
 			createLog();
 
-			var arbre = gedcom(reader.result);
+			 arbre = gedcom(reader.result);
 			if (!arbre) {
 				ajouteLog('erreur : fichier non valide', true);
 				popup(false);

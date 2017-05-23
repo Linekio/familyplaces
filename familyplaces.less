@@ -57,7 +57,7 @@ header {
 	padding-bottom: 15px;
 	opacity: .95;
 	min-width: 260px;
-	transition: right 2s;
+	transition: right 1s;
 }
 
 #retpan {
@@ -171,6 +171,8 @@ form div {
 }
 
 #msg {
+	display: flex;
+	flex-direction: column;
 	position: absolute;
 	top: 20vh;
 	height: 45vh;
@@ -231,7 +233,6 @@ footer {
 }
 
 .sexgrad(@color1, @color2) {
-
 	background: -webkit-gradient(linear, left top, left bottom, color-stop(0.05, #f6f6f6), color-stop(1, #ffffff));
 	background: -moz-linear-gradient(@color1, @color2);
 	background: -webkit-linear-gradient(@color1, @color2);
@@ -268,6 +269,5 @@ xmp {
 
 	& + div {
 		display: inline-block;
-		text-decoration: underline;
 	}
 }
