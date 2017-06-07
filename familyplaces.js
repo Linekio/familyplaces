@@ -4,10 +4,11 @@ var log; //fichier log
 var fileInput = document.getElementById('file'); //input file
 var forFile = document.querySelector('.forfile');
 var logElt = document.getElementById('retour');
-var inputElts = document.querySelectorAll('input');
+var inputElts = document.querySelectorAll('input,select');
 var comp = []; //compilation des personnes
 var lignes = [];
 var places = [];
+var markers = [];
 //encodage des caractères d'après tamurajones.net
 var charset = {
 	'ASCII': 'ascii',
@@ -80,7 +81,7 @@ function decodeAnsel(str) {
 	var ansel = ['æS', '¦', 'æs', '¶', 'èY', 'Æ', 'Ø', '¹', 'Þ', 'Ã', 'ª', 'À', '«', '¨', 'Å', 'áA', 'âA', 'ãA', 'äA', 'èA', 'êA', '¥', 'ðC', 'áE', 'âE', 'ãE', 'èE', 'áI', 'âI', 'ãI', 'èI', '£', 'äN', 'áO', 'âO', 'ãO', 'äO', 'èO', '¢', 'áU', 'âU', 'ãU', 'èU', 'âY', '¤', 'Ï', 'áa', 'âa', 'ãa', 'äa', 'èa', 'êa', 'µ', 'ðc', 'áe', 'âe', 'ãe', 'èe', 'ái', 'âi', 'ãi', 'èi', 'º', 'än', 'áo', 'âo', 'ão', 'äo', 'èo', '²', 'áu', 'âu', 'ãu', 'èu', 'ây', '´', 'èy'];
 	var ret = str;
 	utf.forEach(function(e, i) {
-		var regex = new RegExp(ansel[i], 'g');
+		let regex = new RegExp(ansel[i], 'g');
 		ret = ret.replace(regex, e);
 	});
 	return ret;
@@ -255,7 +256,7 @@ function createMarkers(min, max) {
 	markerCluster.clearMarkers();
 	var precInfoBulle = false;
 	var bounds = new google.maps.LatLngBounds();
-	var markers = [];
+	markers = [];
 	comp.forEach(function(e) {
 		arr = e.bulle.filter(function(el) {
 			if (el.segment) {
@@ -284,7 +285,7 @@ function createMarkers(min, max) {
 			var marker = new google.maps.Marker({
 				position: e.location,
 				title: tit,
-				map: map,
+				//map: map,
 				label: arr.length.toString(),
 				numb: arr.length
 			});
@@ -347,6 +348,20 @@ function creerSegment(persons, id, loc, sex) {
 		}
 	}
 	return null;
+}
+
+function affSegments() {
+
+}
+
+function supprSegments() {
+	comp.forEach(function(el) {
+		el.bulle.forEach(function(elt) {
+			if (elt.segment) {
+				elt.segment.setMap(null);
+			}
+		});
+	})
 }
 
 //requêtes à l'api google et compilation des données
@@ -451,7 +466,7 @@ function ancetres(arbre, id, type, line) {
 }
 
 
-function parentee(arbre, id, type) {
+function parente(arbre, id, type) {
 	function ancetresArray(arbre, id) {
 		var rt = [id];
 		var indiv = arbre['@' + id + '@.0.'];
@@ -491,15 +506,36 @@ function parentee(arbre, id, type) {
 	return ret;
 }
 
+function choisir(arbre) {
+	var liste = [];
+	var tableau = Object.keys(arbre);
+	tableau.forEach(function(e) {
+		if (arbre[e] == 'INDI') {
+			let indiv = arbre[e + '.'];
+			liste.push({nom: nom(indiv) + ' ' + prenoms(indiv), ind: ident(e)});
+		}
+	})
+	return liste;
+}
 
 //traiter l'arbre en fonction du mode
 function traitement(arbre) {
+	popup(true);
+	popMsg('<p>Localisation en cours...</p>');
+	supprSegments();
 	comp = [];
 	lignes = [];
 	var evenement = document.querySelector('input[type=radio]:checked').value;
-	//var persons = tout(arbre, evenement);
-	//var persons = ancetres(arbre, 'I1', 'BIRT', null);
-	var persons = parentee(arbre, 'I1', 'BIRT');
+	var mode = document.querySelector('select').value;
+	var person;
+	switch (mode) {
+		case "tout": persons = tout(arbre, evenement);
+		break;
+		case "parents": persons = parente(arbre, 'I1', evenement);
+		break;
+		case "ancetres": persons = ancetres(arbre, 'I1', evenement, null);
+		break;
+	}
 
 	$("#slider").editRangeSlider("option", "bounds", {
 		min: dateMin(persons),
@@ -578,8 +614,9 @@ function initMap() {
 	inputElts.forEach(function(e) {
 		if (e.id !== 'file') {
 			e.addEventListener('change', function() {
-				fileInput.value = '';
-				forFile.textContent = 'Envoyez votre Gedcom';
+				if (arbre) {
+					traitement(arbre);
+				}
 			});
 		};
 	});
@@ -641,12 +678,7 @@ function initMap() {
 			if (fileCharset == 'ANSEL') {
 				arbre = gedcom(decodeAnsel(reader.result));
 			}
-
-
-			popMsg('<p>Localisation en cours...</p>')
 			traitement(arbre);
-
-
 		});
 
 		reader.readAsText(fileInput.files[0], charset[char]);
