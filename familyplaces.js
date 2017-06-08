@@ -1,9 +1,10 @@
 ﻿// Variables globales
 var map; //div google maps
 var log; //fichier log
-var fileInput = document.getElementById('file'); //input file
+var gedfile = document.getElementById('gedfile'); //input file
 var forFile = document.querySelector('.forfile');
-var logElt = document.getElementById('retour');
+var retour = document.getElementById('retour');
+var msg = document.getElementById('msg');
 var inputElts = document.querySelectorAll('input,select');
 var comp = []; //compilation des personnes
 var lignes = [];
@@ -169,7 +170,7 @@ function date(obj, type) {
 			return parseInt(array[0]);
 		}
 	}
-	return null;
+	return '';
 }
 
 function ident(str) {
@@ -204,37 +205,43 @@ document.getElementById('retpan').addEventListener('click', ouvrePanneau);
 
 // gestion du log
 function createLog() {
-	document.getElementById('retour').style.display = 'block';
+	retour.style.display = 'block';
 	log = {
 		text: '',
 		errors: 0,
 		req: 0
 	}
-	logElt.innerHTML = '';
-	pelt = document.createElement('p');
+	retour.innerHTML = '';
+	var pElt = document.createElement('p');
+	spanElt = document.createElement('span');
+	var ouvrir = document.createElement('a');
 	xmpElt = document.createElement('xmp');
-	aElt = document.createElement('a');
+	var aElt = document.createElement('a');
+	ouvrir.href = '';
+	ouvrir.textContent = 'Consulter le log';
+
+	pElt.appendChild(spanElt);
+	pElt.appendChild(ouvrir);
 	aElt.textContent = 'Fermer';
 	aElt.href = '';
-	logElt.appendChild(pelt);
-	afficheLog();
-}
-
-function afficheLog() {
-
-	pelt.innerHTML = log.errors + ' erreurs. <a href="" id="toglog">Consulter le log</a>';
-	xmpElt.innerHTML = log.text;
-	document.getElementById('toglog').addEventListener('click', function(e) {
+	aElt.addEventListener('click', function(f) {
+		f.preventDefault();
+		popup(false);
+	});
+	ouvrir.addEventListener('click', function(e) {
 		e.preventDefault();
 		msg.innerHTML = '';
 		msg.appendChild(xmpElt);
 		msg.appendChild(aElt);
-		document.querySelector('xmp + a').addEventListener('click', function(f) {
-			f.preventDefault();
-			popup(false);
-		});
 		popup(true);
 	})
+	retour.appendChild(pElt);
+	afficheLog();
+}
+
+function afficheLog() {
+	spanElt.textContent = log.errors + ' erreurs. ';
+	xmpElt.innerHTML = log.text;
 }
 
 function ajouteLog(str, error) {
@@ -507,17 +514,64 @@ function parente(arbre, id, type) {
 }
 
 function choisir(arbre) {
-	var liste = [];
+		var liste = [];
 	var tableau = Object.keys(arbre);
 	tableau.forEach(function(e) {
 		if (arbre[e] == 'INDI') {
 			let indiv = arbre[e + '.'];
-			liste.push({nom: nom(indiv) + ' ' + prenoms(indiv), ind: ident(e)});
+			let birth = date(indiv, 'BIRT');
+			let death = date(indiv, 'DEAT');
+			if (birth == '') {
+				birth = date(indiv, 'CHR')
+			}
+			if (death == '') {
+				death = date(indiv, 'BURI')
+			}
+			liste.push({
+				value: nom(indiv) + ' ' + prenoms(indiv) + ' ' + ident(e),
+				desc: birth + ' - ' + death,
+				ind: ident(e)
+			});
 		}
 	})
-	return liste;
+	msg.innerHTML = '';
+	popup(true);
+	var consigne = $('<p>', {
+		text: 'Choisissez la personne de départ :'
+	})
+	var champ = $('<input>', {
+		type: 'text',
+		name: 'individu'
+	})
+	var desc = $('<div>', {
+		class: 'desc'
+	})
+	var choisirElt = $('<section>');
+	var valider = $('<button>', {
+		text: 'Valider',
+		click: function() {
+			popup(false);
+			success('I1');
+		}
+	})
+	var quitter = $('<a>', {
+		href: '',
+		text: 'Fermer'
+	});
+	quitter.click(function(e) {
+		e.preventDefault();
+		popup(false);
+		fail('quit');
+	})
+	choisirElt.append(consigne, champ, valider, desc);
+	$('#msg').append(choisirElt, quitter);
+	champ.autocomplete({
+		source: liste,
+		select: function(event, ui) {
+			desc.html(ui.item.desc);
+		}
+	})
 }
-
 //traiter l'arbre en fonction du mode
 function traitement(arbre) {
 	popup(true);
@@ -612,7 +666,7 @@ function traitement(arbre) {
 function initMap() {
 
 	inputElts.forEach(function(e) {
-		if (e.id !== 'file') {
+		if (e.id !== 'gedfile') {
 			e.addEventListener('change', function() {
 				if (arbre) {
 					traitement(arbre);
@@ -640,7 +694,7 @@ function initMap() {
 	markerCluster = new MarkerClusterer(map, [], options);
 
 	//traitement du fichier
-	fileInput.addEventListener('change', function() {
+	gedfile.addEventListener('change', function() {
 		popup(true);
 		popMsg(msg.innerHTML = '<p>Ouverture du fichier en cours...</p>');
 		var s = this.files[0].name;
@@ -669,7 +723,7 @@ function initMap() {
 			if (fileCharset != char) {
 				if (Object.keys(charset).includes(fileCharset)) {
 					char = fileCharset;
-					reader.readAsText(fileInput.files[0], charset[char]);
+					reader.readAsText(gedfile.files[0], charset[char]);
 					return;
 				} else {
 					ajouteLog('erreur : encodage ' + fileCharset + ' non reconnu', true);
@@ -681,6 +735,6 @@ function initMap() {
 			traitement(arbre);
 		});
 
-		reader.readAsText(fileInput.files[0], charset[char]);
+		reader.readAsText(gedfile.files[0], charset[char]);
 	});
 }
