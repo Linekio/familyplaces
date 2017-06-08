@@ -192,7 +192,9 @@ function lieu(obj, type) {
 // panneau coulissant
 function fermePanneau() {
 	document.getElementById('panneau').style.right = '-260px';
-	setTimeout(function() {document.getElementById('retpan').style.display = 'block'}, 1000);
+	setTimeout(function() {
+		document.getElementById('retpan').style.display = 'block'
+	}, 1000);
 }
 
 function ouvrePanneau(e) {
@@ -200,7 +202,7 @@ function ouvrePanneau(e) {
 	document.getElementById('retpan').style.display = 'none';
 }
 
-document.getElementById('croix').addEventListener('click', fermePanneau	);
+document.getElementById('croix').addEventListener('click', fermePanneau);
 document.getElementById('retpan').addEventListener('click', ouvrePanneau);
 
 // gestion du log
@@ -267,8 +269,8 @@ function createMarkers(min, max) {
 	comp.forEach(function(e) {
 		arr = e.bulle.filter(function(el) {
 			if (el.segment) {
-			el.segment.setMap(null);
-		}
+				el.segment.setMap(null);
+			}
 			return ((el.date >= min) && (el.date <= max));
 		}).sort(function(a, b) {
 			if (a.date < b.date) {
@@ -286,8 +288,8 @@ function createMarkers(min, max) {
 			}
 			arr.forEach(function(el) {
 				if (el.segment) {
-				el.segment.setMap(map);
-			}
+					el.segment.setMap(map);
+				}
 			})
 			var marker = new google.maps.Marker({
 				position: e.location,
@@ -498,8 +500,8 @@ function parente(arbre, id, type) {
 	tableau.forEach(function(e) {
 		if (arbre[e] == 'INDI') {
 			var a = ancetresArray(arbre, ident(e));
-			var b = ancetresArray(arbre, id);	
-			var inter = a.reduce(function (acc, val) {
+			var b = ancetresArray(arbre, id);
+			var inter = a.reduce(function(acc, val) {
 				return acc || b.includes(val);
 			}, false);
 			if (inter) {
@@ -514,83 +516,103 @@ function parente(arbre, id, type) {
 }
 
 function choisir(arbre) {
+	return new Promise(function(success, fail) {
 		var liste = [];
-	var tableau = Object.keys(arbre);
-	tableau.forEach(function(e) {
-		if (arbre[e] == 'INDI') {
-			let indiv = arbre[e + '.'];
-			let birth = date(indiv, 'BIRT');
-			let death = date(indiv, 'DEAT');
-			if (birth == '') {
-				birth = date(indiv, 'CHR')
+		var tableau = Object.keys(arbre);
+		tableau.forEach(function(e) {
+			if (arbre[e] == 'INDI') {
+				let indiv = arbre[e + '.'];
+				let birth = date(indiv, 'BIRT');
+				let death = date(indiv, 'DEAT');
+				if (birth == '') {
+					birth = date(indiv, 'CHR')
+				}
+				if (death == '') {
+					death = date(indiv, 'BURI')
+				}
+				liste.push({
+					value: nom(indiv) + ' ' + prenoms(indiv) + ' ' + ident(e),
+					desc: birth + ' - ' + death,
+					ind: ident(e)
+				});
 			}
-			if (death == '') {
-				death = date(indiv, 'BURI')
+		})
+		msg.innerHTML = '';
+		popup(true);
+		var consigne = $('<p>', {
+			text: 'Choisissez la personne de départ :'
+		})
+		champ = $('<input>', {
+			type: 'text',
+			name: 'individu'
+		})
+		var desc = $('<div>', {
+			class: 'desc'
+		})
+		var choisirElt = $('<section>');
+		var valider = $('<button>', {
+			text: 'Valider',
+			click: function(val) {
+				popup(false);
+				let i = liste.findIndex(function(elt) {
+					return elt.value === champ.val();
+				})
+				if (i === -1) {
+					alert('Invalide');
+				} else {
+					success(liste[i].ind);
+				}
 			}
-			liste.push({
-				value: nom(indiv) + ' ' + prenoms(indiv) + ' ' + ident(e),
-				desc: birth + ' - ' + death,
-				ind: ident(e)
-			});
-		}
-	})
-	msg.innerHTML = '';
-	popup(true);
-	var consigne = $('<p>', {
-		text: 'Choisissez la personne de départ :'
-	})
-	var champ = $('<input>', {
-		type: 'text',
-		name: 'individu'
-	})
-	var desc = $('<div>', {
-		class: 'desc'
-	})
-	var choisirElt = $('<section>');
-	var valider = $('<button>', {
-		text: 'Valider',
-		click: function() {
+		})
+		var quitter = $('<a>', {
+			href: '',
+			text: 'Fermer'
+		});
+		quitter.click(function(e) {
+			e.preventDefault();
 			popup(false);
-			success('I1');
-		}
+			fail('quit');
+		})
+		choisirElt.append(consigne, champ, valider, desc);
+		$('#msg').append(choisirElt, quitter);
+		champ.autocomplete({
+			source: liste,
+			select: function(event, ui) {
+				desc.html(ui.item.desc);
+			}
+		})
 	})
-	var quitter = $('<a>', {
-		href: '',
-		text: 'Fermer'
-	});
-	quitter.click(function(e) {
-		e.preventDefault();
-		popup(false);
-		fail('quit');
-	})
-	choisirElt.append(consigne, champ, valider, desc);
-	$('#msg').append(choisirElt, quitter);
-	champ.autocomplete({
-		source: liste,
-		select: function(event, ui) {
-			desc.html(ui.item.desc);
+}
+//lister les individus concernés
+function lister(arbre) {
+	return new Promise(function(success, fail) {
+		popup(true);
+		popMsg('<p>Localisation en cours...</p>');
+		supprSegments();
+		comp = [];
+		lignes = [];
+		var evenement = document.querySelector('input[type=radio]:checked').value;
+		var mode = document.querySelector('select').value;
+		var person;
+		switch (mode) {
+			case "tout":
+				success(tout(arbre, evenement));
+				break;
+			case "parents":
+				choisir(arbre).then(function(res) {
+					success(persons = parente(arbre, res, evenement));
+				});
+				break;
+			case "ancetres":
+				choisir(arbre).then(function(res) {
+					success(persons = ancetres(arbre, res, evenement, null));
+				});
+				break;
 		}
 	})
 }
-//traiter l'arbre en fonction du mode
-function traitement(arbre) {
-	popup(true);
-	popMsg('<p>Localisation en cours...</p>');
-	supprSegments();
-	comp = [];
-	lignes = [];
-	var evenement = document.querySelector('input[type=radio]:checked').value;
-	var mode = document.querySelector('select').value;
-	var person;
-	switch (mode) {
-		case "tout": persons = tout(arbre, evenement);
-		break;
-		case "parents": persons = parente(arbre, 'I1', evenement);
-		break;
-		case "ancetres": persons = ancetres(arbre, 'I1', evenement, null);
-		break;
-	}
-
+//traiter la liste
+function traitement(persons) {
 	$("#slider").editRangeSlider("option", "bounds", {
 		min: dateMin(persons),
 		max: dateMax(persons)
@@ -651,7 +673,6 @@ function traitement(arbre) {
 			return acc + e.bulle.length;
 		}, 0);
 		ajouteLog(sum + ' personnes localisées\n' + log.req + '  requêtes geocode effectuées\n' + comp.length + ' marqueurs créés', false);
-		fermePanneau();		
 		createMarkers(dateMin(persons), dateMax(persons));
 		popup(false);
 	})
@@ -669,7 +690,7 @@ function initMap() {
 		if (e.id !== 'gedfile') {
 			e.addEventListener('change', function() {
 				if (arbre) {
-					traitement(arbre);
+					lister(arbre).then(traitement);
 				}
 			});
 		};
@@ -711,7 +732,7 @@ function initMap() {
 
 			createLog();
 
-			 arbre = gedcom(reader.result);
+			arbre = gedcom(reader.result);
 			if (!arbre) {
 				ajouteLog('erreur : fichier non valide', true);
 				popup(false);
@@ -732,7 +753,8 @@ function initMap() {
 			if (fileCharset == 'ANSEL') {
 				arbre = gedcom(decodeAnsel(reader.result));
 			}
-			traitement(arbre);
+			lister(arbre).then(traitement);
+			fermePanneau();
 		});
 
 		reader.readAsText(gedfile.files[0], charset[char]);
