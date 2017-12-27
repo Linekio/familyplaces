@@ -5,11 +5,13 @@ var gedfile = document.getElementById('gedfile'); //input file
 var forFile = document.querySelector('.forfile');
 var retour = document.getElementById('retour');
 var msg = document.getElementById('msg');
-var inputElts = document.querySelectorAll('input,select');
+var inputElts = document.querySelectorAll('input:not(#fleches),select');
+var displaySegments = document.getElementById('fleches');
 var comp = []; //compilation des personnes
 var lignes = [];
 var places = [];
 var markers = [];
+var arbre;
 //encodage des caractères d'après tamurajones.net
 var charset = {
 	'ASCII': 'ascii',
@@ -287,7 +289,7 @@ function createMarkers(min, max) {
 				tit += ', ...';
 			}
 			arr.forEach(function(el) {
-				if (el.segment) {
+				if (el.segment && displaySegments.checked) {
 					el.segment.setMap(map);
 				}
 			})
@@ -360,7 +362,13 @@ function creerSegment(persons, id, loc, sex) {
 }
 
 function affSegments() {
-
+	comp.forEach(function(el) {
+		el.bulle.forEach(function(elt) {
+			if (elt.segment) {
+				elt.segment.setMap(map);
+			}
+		});
+	})
 }
 
 function supprSegments() {
@@ -686,15 +694,36 @@ function traitement(persons) {
 //initialisation, fonction appelée au chargement de la page
 function initMap() {
 
+	function changeMode() {
+		flecheBox = document.getElementById('fleche');
+		mode = document.querySelector('select').value;
+		if (mode === 'ancetres') {
+			flecheBox.style.display = 'block';
+		} else {
+			flecheBox.style.display = 'none';
+		}
+	}
+
+	changeMode();
+
 	inputElts.forEach(function(e) {
 		if (e.id !== 'gedfile') {
 			e.addEventListener('change', function() {
-				if (arbre) {
+				changeMode();
+				if (arbre && e.name !== 'fleches') {
 					lister(arbre).then(traitement);
 				}
 			});
 		};
 	});
+
+	displaySegments.addEventListener('change', function() {
+		if (displaySegments.checked) {
+			affSegments();
+		} else {
+			supprSegments();
+		}
+	})
 
 	map = new google.maps.Map(document.getElementById('map'), {
 		zoom: 4,
